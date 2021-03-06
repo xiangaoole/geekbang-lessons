@@ -43,12 +43,7 @@ public class DatabaseUserRepository implements UserRepository {
 
     @Override
     public boolean save(User user) {
-        String sql = "INSERT INTO users(name,password,email,phoneNumber) VALUES " +
-                "(?,?,?,?)";
-        int result = executeUpdate(sql,
-                user.getName(), user.getPassword(), user.getEmail(),
-                user.getPhoneNumber());
-        return result != 0;
+        return false;
     }
 
     @Override
@@ -140,28 +135,6 @@ public class DatabaseUserRepository implements UserRepository {
             exceptionHandler.accept(e);
         }
         return null;
-    }
-
-    private int executeUpdate(String sql, Object... args) {
-        Connection connection = getConnection();
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            for (int i = 0; i < args.length; i++) {
-                Object arg = args[i];
-                Class<?> argType = arg.getClass();
-                String methodName = preparedStatementMethodMappings.get(argType);
-                Class<?> wrapperType = wrapperToPrimitive(argType);// Long.class -> long
-                if (wrapperType == null) {
-                    wrapperType = argType;
-                }
-                Method method = PreparedStatement.class.getMethod(methodName, int.class, wrapperType);
-                method.invoke(preparedStatement, i + 1, args[i]);
-            }
-            return preparedStatement.executeUpdate();
-        } catch (Throwable e) {
-            COMMON_EXCEPTION_HANDLER.accept(e);
-        }
-        return 0;
     }
 
 
